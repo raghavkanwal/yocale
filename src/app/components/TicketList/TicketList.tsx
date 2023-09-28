@@ -4,9 +4,8 @@ import { getTickets } from "src/app/apis/get";
 import Ticket, { TicketProp } from "../Ticket/Ticket";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, useLocation } from "react-router-dom";
-import 'src/index.css'
 import TicketDetail from '../TicketDetail/TicketDetail';
-
+import styles from './TicketList.module.css'
 
 function useQueryParam() {
   const { search } = useLocation();
@@ -25,17 +24,18 @@ export default function TicketList() {
             header: () => <span>Ticket ID</span>
         }),
         columnHelper.accessor('status', {
-            cell: info => info.getValue(),
+            cell: info => <span style={{textTransform: 'capitalize'}}>{info.getValue()}</span>,
             header: () => <span>Ticket Status</span>
         }),
         columnHelper.accessor('userId', {
-            cell: info => info.getValue(),
+            cell: info => info.getValue() || 'N/A',
             header: () => <span>User ID</span>
         })
     ]
     const { isLoading, isError, data: ticketsList } = useQuery({
         queryKey: ['fetchTickets'],
         queryFn: () => getTickets(),
+        initialData: []
     });
 
     const table = useReactTable({
@@ -50,12 +50,12 @@ export default function TicketList() {
     return <>
         <Child id={queryParams.get("id")} />
 
-        <table className="p-2">
+        <table className={styles.tableContainer}>
             <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                     <tr key={headerGroup.id}>
                         {headerGroup.headers.map(header => (
-                            <th key={header.id}>
+                            <th key={header.id} style={{textAlign: 'left', borderBottom: '1px solid #ccc'}}>
                                 {header.isPlaceholder
                                     ? null
                                     : flexRender(
@@ -70,7 +70,7 @@ export default function TicketList() {
             <tbody>
                 {
                     table.getRowModel().rows.map(row => (
-                        <tr key={row.id}>
+                        <tr key={row.id} className={styles.border}>
                             {row.getVisibleCells().map(cell => (
                                 <td key={cell.id}>
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
